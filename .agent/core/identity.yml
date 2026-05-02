@@ -1,0 +1,28 @@
+# DO NOT add dynamic content to this file (no dates, no task IDs)
+# This file is prompt-cached by the LLM API after first call
+
+project: Tidal-Media-Downloader-PRO
+type: desktop-app      # Windows WPF application
+description: >
+  A Windows desktop GUI application for downloading music tracks and videos
+  from the Tidal streaming service, supporting lossless/HiFi audio, playlist
+  and album batch downloads, metadata tagging, and cover art saving.
+
+stack:
+  - primary: C#
+  - framework: WPF (.NET Framework 4.8)
+  - mvvm: Stylet 1.3.6
+  - ui_controls: HandyControl 3.3.0
+  - serialization: Newtonsoft.Json 13.0.1
+  - media_processing: MediaToolkit 1.1.0.1 (FFmpeg wrapper)
+  - tidal_client: TidalLib (bundled, internal)
+  - helpers: AIGS (bundled, internal)
+  - deployment: standalone .exe (Costura.Fody for single-file bundling)
+
+team: solo-developer
+priorities:
+  - correctness
+  - user-experience
+  - maintainability
+
+repo: github.com/yaronzz/Tidal-Media-Downloader-PRO

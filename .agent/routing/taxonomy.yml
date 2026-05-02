@@ -1,0 +1,118 @@
+# Project Task Taxonomy
+# Maps task types to executor + required context
+# Tidal-Media-Downloader-PRO — last updated 2026-05-02
+
+task_types:
+
+  # ── UI / WPF ──────────────────────────────────────────────
+  ui-wpf:
+    executor: fast-model
+    complexity: low
+    context_required: [memory/sessions.md, wiki/domain.yml]
+    tokens_est: 5000
+    skill: ui
+    examples: [XAML changes, HandyControl styling, theme/language switching, view bindings]
+
+  ui-wpf-architectural:
+    executor: smart-model
+    complexity: high
+    context_required: [wiki/architecture.md, wiki/domain.yml, memory/decisions.md]
+    tokens_est: 15000
+    skill: ui
+    examples: [new page/view pair, Shell navigation changes, ViewModel lifecycle refactor]
+
+  # ── DOWNLOAD ENGINE ───────────────────────────────────────
+  download-logic:
+    executor: smart-model
+    complexity: high
+    context_required: [wiki/domain.yml, wiki/integrations.md, memory/decisions.md]
+    tokens_est: 12000
+    skill: download
+    examples: [TrackTask/VideoTask download flow, stream URL handling, file path formatting, metadata tagging]
+
+  download-simple:
+    executor: fast-model
+    complexity: low
+    context_required: [wiki/domain.yml, memory/sessions.md]
+    tokens_est: 4000
+    skill: download
+    examples: [progress display fixes, speed calculation, thread pool tuning]
+
+  # ── TIDAL API / AUTH ──────────────────────────────────────
+  tidal-api:
+    executor: smart-model
+    complexity: high
+    context_required: [wiki/integrations.md, wiki/domain.yml, memory/decisions.md]
+    risk: high
+    tokens_est: 15000
+    skill: download
+    examples: [auth flow changes, TidalLib upgrade, new search types, stream URL changes]
+
+  # ── SETTINGS / CONFIG ─────────────────────────────────────
+  settings-config:
+    executor: fast-model
+    complexity: low
+    context_required: [wiki/domain.yml, memory/sessions.md]
+    tokens_est: 4000
+    skill: ui
+    examples: [new settings field, Settings.cs/UserSettings.cs changes, config migration]
+
+  # ── BUG FIXES ─────────────────────────────────────────────
+  bug-fix-simple:
+    executor: fast-model
+    complexity: low
+    context_required: [memory/sessions.md]
+    tokens_est: 3000
+    skill: download
+    examples: [crash fix, null-ref, off-by-one in track numbering, filename sanitization]
+
+  bug-fix-architectural:
+    executor: smart-model
+    complexity: high
+    context_required: [wiki/architecture.md, memory/decisions.md, memory/sessions.md]
+    tokens_est: 15000
+    skill: download
+    examples: [thread safety issues, auth token race conditions, Costura embedding failures]
+
+  # ── DEPLOYMENT / RELEASE ──────────────────────────────────
+  deploy-release:
+    executor: fast-model
+    complexity: low
+    context_required: [wiki/integrations.md]
+    tokens_est: 3000
+    skill: ui
+    examples: [update.bat script, version bump, GitHub release, Fody/Costura config]
+
+  # ── ARCHITECTURE DESIGN ───────────────────────────────────
+  architecture-design:
+    executor: smart-model
+    complexity: high
+    context_required: [wiki/architecture.md, wiki/domain.yml, memory/decisions.md]
+    risk: high
+    tokens_est: 20000
+    skill: download
+    examples: [new download type, replacing TidalLib, multi-account support design]
+
+  ci-pipeline:
+    executor: smart-model
+    complexity: medium
+    context_required: [wiki/integrations.md, memory/decisions.md]
+    tokens_est: 10000
+    skill: backend
+
+  # ── DATA SCHEMA ───────────────────────────────────────────
+  data-schema:
+    executor: smart-model
+    complexity: medium
+    context_required: [wiki/domain.yml, memory/decisions.md]
+    risk: high
+    tokens_est: 8000
+    skill: backend
+
+  # ── DOCS / CROSS-CUTTING ──────────────────────────────────
+  documentation:
+    executor: fast-model
+    complexity: low
+    context_required: [memory/sessions.md]
+    tokens_est: 3000
+    skill: backend

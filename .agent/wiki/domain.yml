@@ -1,0 +1,112 @@
+# Domain Entity Model — auto-populated by acp-init (2025-05-02)
+
+entities:
+  # Tidal API objects (from TidalLib)
+  - name: Track
+    source: TidalLib
+    fields: [Title, Album, ArtistsName, TrackNumber, Duration, Quality]
+  - name: Video
+    source: TidalLib
+    fields: [Title, Album, ArtistsName, Resolution, Duration]
+  - name: Album
+    source: TidalLib
+    fields: [Title, CoverHighUrl, Artists, Tracks, ReleaseDate, AlbumID]
+  - name: Artist
+    source: TidalLib
+    fields: [Name, Albums]
+  - name: Playlist
+    source: TidalLib
+    fields: [Title, Tracks, Videos]
+  - name: SearchResult
+    source: TidalLib
+    fields: [Tracks, Albums, Artists, Videos, Playlists]
+  - name: Detail
+    source: TidalLib
+    fields: [Title, CoverUrl, Intro, Data, Items]
+    note: wrapper around any Tidal entity plus its child items
+  - name: LoginKey
+    source: TidalLib
+    fields: [AccessToken, UserID, CountryCode]
+  - name: TidalDeviceCode
+    source: TidalLib
+    fields: [DeviceCode, UserCode, VerificationUrl, ExpiresIn]
+  - name: StreamUrl
+    source: TidalLib
+    fields: [Url, Codec, BitDepth, SampleRate]
+  - name: VideoStreamUrl
+    source: TidalLib
+    fields: [Url, Resolution, Codec]
+  # App domain objects (TIDALDL_UI.Else)
+  - name: Settings
+    source: TIDALDL_UI.Else
+    fields: [ThemeType, LanguageType, OutputDir, ThreadNum, SearchNum,
+             AudioQuality, VideoQuality, OnlyM4a, AddExplicitTag, AddHyphen,
+             UseTrackNumber, CheckExist, ArtistBeforeTitle, SaveCovers,
+             IncludeEP, AddAlbumIDBeforeFolder, AddYear, MaxFileName, MaxDirName,
+             AlbumFolderFormat, TrackFileFormat, VideoFileFormat]
+    storage: JSON (encrypted)
+  - name: UserSettings
+    source: TIDALDL_UI.Else
+    fields: [Userid, Username, Accesstoken, Refreshtoken, Countrycode,
+             ProxyEnable, ProxyHost, ProxyPort, ProxyUser, ProxyPwd, Remember, AutoLogin]
+    storage: JSON (base64-encoded)
+  - name: DownloadItem
+    source: TIDALDL_UI.Else
+    fields: [TidalTrack, TidalVideo, TidalAlbum, TidalPlaylist, OutputDir,
+             FilePath, Quality, Resolution, Title, Progress]
+  - name: TrackTask
+    source: TIDALDL_UI.Else
+    fields: [Index, Title, Own, Codec, Progress, CurSizeString, TotalSizeString, DownloadSpeedString]
+    note: represents a running/queued track download job
+  - name: VideoTask
+    source: TIDALDL_UI.Else
+    fields: [Index, Title, Own, Codec, Progress, CurSizeString, TotalSizeString, DownloadSpeedString]
+    note: represents a running/queued video download job
+
+operations:
+  auth:
+    - Client.Login(accessToken, proxy) → (msg, LoginKey)
+    - Client.RefreshAccessToken(refreshToken, proxy) → (msg, LoginKey)
+    - Client.GetDeviceCode(proxy) → (msg, TidalDeviceCode)
+  search:
+    - Client.Get(key, query, eType, limit, includeEP, onlyAlbum, offset) → (msg, eType, data)
+      note: returns Track/Album/Artist/Video/Playlist/SearchResult depending on input
+  download:
+    - TrackTask.Download() — resolves StreamUrl, downloads audio, writes ID3 tags
+    - VideoTask.Download() — resolves VideoStreamUrl, downloads segments, merges via MediaToolkit
+  file_management:
+    - Tools.GetAlbumPath(album, settings) → string
+    - Tools.GetArtistPath(artist, settings) → string
+    - Tools.GetVideoPath(settings, video, album) → string
+    - Tools.GetTrackPath(track, album, settings) → string
+  settings:
+    - Settings.Read() → Settings          (from PATH_SETTINGS JSON)
+    - Settings.Save() → bool
+    - UserSettings.Read() → UserSettings  (from PATH_USERSETTINGS, encrypted)
+    - UserSettings.Save() → bool
+  config_legacy:
+    - Config.OutputDir / Quality / ThreadNum / OnlyM4a / AddHyphen … (INI-based, superseded by Settings)
+
+modules:
+  - name: TidalLib
+    type: external-library
+    role: Tidal API client — authentication, search, metadata fetch, stream URL resolution
+  - name: TIDALDL_UI.Pages
+    type: WPF-ViewModels
+    files: [LoginViewModel, SearchViewModel, DownloadViewModel, TaskViewModel,
+            SettingsViewModel, MainViewModel, ShellViewModel, AboutViewModel]
+    role: MVVM presentation layer; user actions trigger TidalLib calls
+  - name: TIDALDL_UI.Else
+    type: domain-helpers
+    files: [Config, Settings, UserSettings, DownloadItem, TrackTask, VideoTask,
+            Tools, Global, Language, Theme, CoverCard, ThreadTool, ModelBase]
+    role: app state, download orchestration, file path building, config I/O
+  - name: AIGS
+    type: external-library
+    role: general helpers — FileHelper, HttpHelper, SystemHelper, EncryptHelper, PathHelper
+  - name: HandyControl
+    type: external-library
+    role: modern WPF UI controls (Growl notifications, styled widgets)
+  - name: Stylet
+    type: external-library
+    role: lightweight MVVM framework (Screen base class, IWindowManager, BindableCollection)
